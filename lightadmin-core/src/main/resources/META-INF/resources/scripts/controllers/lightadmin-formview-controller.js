@@ -93,6 +93,23 @@ function SaveOrUpdateDomainEntityAction(resourceName, domForm, usePlaceholders) 
         });
     }
 
+    function saveCustomProperties(entityId)
+    {
+        var fields = ConfigurationMetadataService.getDynamicPropertiesAsArray(resourceName, 'formView');
+        var promise = Promise.resolve(undefined);
+
+        for (var fieldIdx in fields) {
+            var property = fields[fieldIdx];
+            if (property['type'] == 'CUSTOM') {
+                promise = promise.then(function(){
+                    return ApplicationConfig.CUSTOM_EDITORS[property['customType']].save(resourceName, entityId, domForm, property);
+                });
+            }
+        }
+
+        return promise;
+    }
+
     return {
         perform: function (method, successCallback) {
             var primaryKey = ConfigurationMetadataService.getPrimaryKeyProperty(resourceName)['name'];
@@ -110,16 +127,7 @@ function SaveOrUpdateDomainEntityAction(resourceName, domForm, usePlaceholders) 
                 data: jsonData,
                 dataType: 'json',
                 success: function (data) {
-
-                    var promise = Promise.resolve(undefined);
-
-                    Object.keys(ApplicationConfig.CUSTOM_EDITORS).forEach(function(key){
-                        promise = promise.then(function(){
-                            return ApplicationConfig.CUSTOM_EDITORS[key].save(resourceName, jsonForm);
-                        });
-                    });
-
-                    promise.then(function(){
+                    saveCustomProperties(jsonForm[primaryKey]).then(function(){
                         successCallback(new DomainEntity(data));
                     });
                 },

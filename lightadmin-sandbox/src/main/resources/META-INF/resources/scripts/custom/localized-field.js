@@ -1,10 +1,10 @@
 var LocalizedType = (function ()
 {
-    function saveInternal(resourceName, jsonForm, resolve)
+    function saveInternal(resourceName, entityId, domForm, property)
      {
          console.log("start save");
          setTimeout(function() {
-             console.log(resourceName, jsonForm);
+             console.log(resourceName, domForm, property);
              resolve(undefined);
          }, 500);
      }
@@ -23,9 +23,9 @@ var LocalizedType = (function ()
             form.find('[name="' + property['name'] + '"]').val("test " + domainEntity.getPropertyValue(property, 'formView').toString());
         },
 
-        save: function(resourceName, jsonForm)
+        save: function(resourceName, entityId, domForm, property)
         {
-            return new Promise(function(resolve) { saveInternal(resourceName, jsonForm, resolve); })
+            return new Promise(function(resolve) { saveInternal(resourceName, entityId, domForm, property); })
         },
     };
 }());
