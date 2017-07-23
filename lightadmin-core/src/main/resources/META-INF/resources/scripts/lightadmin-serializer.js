@@ -50,7 +50,9 @@
 
             var propertyType = property['type'];
 
-            if (propertyType.indexOf('ASSOC') == 0) {
+            if (propertyType == 'CUSTOM') {
+                json[this.name] = ApplicationConfig.CUSTOM_EDITORS[property['customType']].serialize(attrVal, property);
+            } else if (propertyType.indexOf('ASSOC') == 0) {
                 var href = resolveObjectHref(attrVal, property);
                 if (propertyType == 'ASSOC_MULTI') {
                     if (!json[this.name]) {

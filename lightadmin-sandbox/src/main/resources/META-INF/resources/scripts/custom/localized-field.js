@@ -2,6 +2,11 @@ var LocalizedType = (function ()
 {
     return {
         NAME: 'LOCALIZED',
+
+        serialize: function(attrVal, property)
+        {
+            return attrVal;
+        },
     };
 }());
 
