@@ -110,7 +110,18 @@ function SaveOrUpdateDomainEntityAction(resourceName, domForm, usePlaceholders) 
                 data: jsonData,
                 dataType: 'json',
                 success: function (data) {
-                    successCallback(new DomainEntity(data));
+
+                    var promise = Promise.resolve(undefined);
+
+                    Object.keys(ApplicationConfig.CUSTOM_EDITORS).forEach(function(key){
+                        promise = promise.then(function(){
+                            return ApplicationConfig.CUSTOM_EDITORS[key].save(resourceName, jsonForm);
+                        });
+                    });
+
+                    promise.then(function(){
+                        successCallback(new DomainEntity(data));
+                    });
                 },
                 statusCode: {
                     400: function (jqXHR) {

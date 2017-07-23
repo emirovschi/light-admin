@@ -1,5 +1,14 @@
 var LocalizedType = (function ()
 {
+    function saveInternal(resourceName, jsonForm, resolve)
+     {
+         console.log("start save");
+         setTimeout(function() {
+             console.log(resourceName, jsonForm);
+             resolve(undefined);
+         }, 500);
+     }
+
     return {
         NAME: 'LOCALIZED',
 
@@ -12,6 +21,11 @@ var LocalizedType = (function ()
         {
             console.log(domainEntity, form, property);
             form.find('[name="' + property['name'] + '"]').val("test " + domainEntity.getPropertyValue(property, 'formView').toString());
+        },
+
+        save: function(resourceName, jsonForm)
+        {
+            return new Promise(function(resolve) { saveInternal(resourceName, jsonForm, resolve); })
         },
     };
 }());
