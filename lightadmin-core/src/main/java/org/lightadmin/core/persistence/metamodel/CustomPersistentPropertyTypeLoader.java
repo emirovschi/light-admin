@@ -42,4 +42,9 @@ public class CustomPersistentPropertyTypeLoader
     {
         return persistentPropertyTypeList.stream().filter(type -> type.is(persistentProperty)).findFirst().orElse(null);
     }
+
+    public static List<CustomPersistentPropertyType> getAll()
+    {
+        return persistentPropertyTypeList;
+    }
 }
