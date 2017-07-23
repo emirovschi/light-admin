@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.lightadmin.core.config.LightAdminConfiguration;
 import org.lightadmin.core.config.bootstrap.RepositoriesFactoryBean;
 import org.lightadmin.core.config.domain.GlobalAdministrationConfiguration;
+import org.lightadmin.core.persistence.metamodel.CustomPersistentPropertyTypeLoader;
 import org.lightadmin.core.persistence.repository.event.FileManipulationRepositoryEventListener;
 import org.lightadmin.core.persistence.repository.invoker.DynamicRepositoryInvokerFactory;
 import org.lightadmin.core.persistence.support.DynamicDomainObjectMerger;
@@ -115,6 +116,13 @@ public class LightAdminRepositoryRestMvcConfiguration extends RepositoryRestMvcC
     @Autowired
     public FileManipulationRepositoryEventListener domainRepositoryEventListener(GlobalAdministrationConfiguration configuration, FileResourceStorage fileResourceStorage) {
         return new FileManipulationRepositoryEventListener(configuration, fileResourceStorage);
+    }
+
+    @Bean
+    @Autowired
+    public CustomPersistentPropertyTypeLoader customPersistentPropertyTypeLoader(final LightAdminConfiguration configuration)
+    {
+        return new CustomPersistentPropertyTypeLoader(configuration);
     }
 
     @Override

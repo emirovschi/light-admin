@@ -50,10 +50,16 @@ public enum PersistentPropertyType {
     ENUM,
     EMBEDDED,
     MAP,
-    UNKNOWN;
+    UNKNOWN,
+    CUSTOM;
 
     public static PersistentPropertyType forPersistentProperty(PersistentProperty persistentProperty) {
         final Class<?> attrType = persistentProperty.getType();
+
+        if (CustomPersistentPropertyTypeLoader.is(persistentProperty))
+        {
+            return PersistentPropertyType.CUSTOM;
+        }
 
         if (persistentProperty.isAnnotationPresent(Embedded.class) || persistentProperty.isAnnotationPresent(EmbeddedId.class)) {
             return PersistentPropertyType.EMBEDDED;
