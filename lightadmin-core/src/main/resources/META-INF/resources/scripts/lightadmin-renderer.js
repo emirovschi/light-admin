@@ -153,7 +153,10 @@ var FieldValueRenderer = (function () {
     }
 
     function isDomainObject(fieldValue) {
-        return $.isPlainObject(fieldValue) && fieldValue['_embedded']['manageable_entity']['string_representation'] !== undefined;
+        return $.isPlainObject(fieldValue)
+        && fieldValue.hasOwnProperty('_embedded')
+        && fieldValue['_embedded'].hasOwnProperty('manageable_entity')
+        && fieldValue['_embedded']['manageable_entity']['string_representation'] !== undefined;
     }
 
     function createRenderer(propertyType, propertyValue, targetView) {
