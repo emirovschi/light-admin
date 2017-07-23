@@ -27,6 +27,11 @@ var LocalizedType = (function ()
         {
             return new Promise(function(resolve) { saveInternal(resourceName, entityId, domForm, property); })
         },
+
+        getValue: function(domainEntity, propertyMetadata, unitType)
+        {
+            return domainEntity.dynamic_properties[unitType][propertyMetadata['name']];
+        }
     };
 }());
 

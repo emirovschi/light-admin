@@ -73,11 +73,18 @@
                     "bSortable": ${field.sortable},
                     "aTargets": [ ${status.index + 1 } ],
                     <c:choose>
-                    <c:when test="${(not field.dynamic) and (light:persistentPropertyTypeOf(field.persistentProperty) eq ASSOC or light:persistentPropertyTypeOf(field.persistentProperty) eq ASSOC_MULT)}">
+                    <c:when test="${(not field.dynamic) and (light:persistentPropertyTypeOf(field.persistentProperty).toString() == 'ASSOC' or light:persistentPropertyTypeOf(field.persistentProperty).toString() == 'ASSOC_MULT')}">
                     "mData": function(source) {
                         var domainEntity = new DomainEntity(source);
                         var propertyMetadata = ConfigurationMetadataService.getProperty(ApplicationConfig.RESOURCE_NAME, '${propertyName}', 'listView');
                         return domainEntity.getPropertyValue(propertyMetadata, 'listView');
+                    },
+                    </c:when>
+                    <c:when test="${light:persistentPropertyTypeOf(field.persistentProperty).toString() == 'CUSTOM'}">
+                    "mData": function(source) {
+                        var domainEntity = new DomainEntity(source);
+                        var propertyMetadata = ConfigurationMetadataService.getProperty(ApplicationConfig.RESOURCE_NAME, '${propertyName}', 'listView');
+                        return ApplicationConfig.CUSTOM_EDITORS[propertyMetadata['customType']].getValue(domainEntity, propertyMetadata, 'listView');
                     },
                     </c:when>
                     <c:otherwise>

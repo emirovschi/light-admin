@@ -89,7 +89,9 @@ function DomainEntity(data) {
         var propertyName = propertyMetadata['name'];
         var propertyType = propertyMetadata['type'];
 
-        if (!isDynamicProperty && (propertyType == 'ASSOC' || propertyType == 'ASSOC_MULTI')) {
+        if (propertyType == 'CUSTOM') {
+            return ApplicationConfig.CUSTOM_EDITORS[propertyMetadata['customType']].getValue(this, propertyMetadata, unitType);
+        }else if (!isDynamicProperty && (propertyType == 'ASSOC' || propertyType == 'ASSOC_MULTI')) {
             return getDynamicAssociationValue(this, propertyMetadata, unitType);
         } else if (isDynamicProperty || propertyType == 'FILE') {
             return this.dynamic_properties[unitType][propertyName];
