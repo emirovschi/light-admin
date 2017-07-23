@@ -162,6 +162,12 @@ function LoadDomainEntityAction(resourceName) {
             var propertyName = property['name'];
             var propertyType = property['type'];
 
+            if (propertyType == 'CUSTOM')
+            {
+                ApplicationConfig.CUSTOM_EDITORS[property['customType']].load(domainEntity, form, property);
+                continue;
+            }
+
             var editor = form.find('[name="' + propertyName + '"]');
             if (editor.length == 0) {
                 continue;
