@@ -14,6 +14,7 @@ public class Address extends AbstractEntity {
     private String street;
 
     @NotBlank
+    @Localized
     private String city;
 
     @NotBlank

@@ -93,6 +93,23 @@ function SaveOrUpdateDomainEntityAction(resourceName, domForm, usePlaceholders) 
         });
     }
 
+    function saveCustomProperties(entityId)
+    {
+        var fields = ConfigurationMetadataService.getDynamicPropertiesAsArray(resourceName, 'formView');
+        var promise = Promise.resolve(undefined);
+
+        for (var fieldIdx in fields) {
+            var property = fields[fieldIdx];
+            if (property['type'] == 'CUSTOM') {
+                promise = promise.then(function(){
+                    return ApplicationConfig.CUSTOM_EDITORS[property['customType']].save(resourceName, entityId, domForm, property);
+                });
+            }
+        }
+
+        return promise;
+    }
+
     return {
         perform: function (method, successCallback) {
             var primaryKey = ConfigurationMetadataService.getPrimaryKeyProperty(resourceName)['name'];
@@ -110,7 +127,11 @@ function SaveOrUpdateDomainEntityAction(resourceName, domForm, usePlaceholders) 
                 data: jsonData,
                 dataType: 'json',
                 success: function (data) {
-                    successCallback(new DomainEntity(data));
+                    var primaryKeyValue = method == 'POST' ? data[primaryKey] : jsonForm[primaryKey];
+
+                    saveCustomProperties(primaryKeyValue).then(function(){
+                        successCallback(new DomainEntity(data));
+                    });
                 },
                 statusCode: {
                     400: function (jqXHR) {
@@ -161,6 +182,12 @@ function LoadDomainEntityAction(resourceName) {
             var property = fields[fieldIdx];
             var propertyName = property['name'];
             var propertyType = property['type'];
+
+            if (propertyType == 'CUSTOM')
+            {
+                ApplicationConfig.CUSTOM_EDITORS[property['customType']].load(domainEntity, form, property);
+                continue;
+            }
 
             var editor = form.find('[name="' + propertyName + '"]');
             if (editor.length == 0) {

@@ -15,6 +15,7 @@
  */
 package org.lightadmin.core.view.tags.form;
 
+import org.lightadmin.core.persistence.metamodel.CustomPersistentPropertyTypeLoader;
 import org.lightadmin.core.persistence.metamodel.PersistentPropertyType;
 import org.lightadmin.core.view.editor.JspFragmentFieldControl;
 import org.springframework.data.mapping.PersistentProperty;
@@ -48,11 +49,16 @@ public class EditControlDispatcherTag extends SimpleTagSupport {
         if (customControl == null) {
             doWithStandardControl();
         } else {
-            customControl.setParent(this);
-            customControl.setPersistentProperty(persistentProperty);
-            customControl.setJspContext(getJspContext());
-            customControl.doTag();
+            doCustomControl(customControl);
         }
+    }
+
+    private void doCustomControl(final JspFragmentFieldControl customControl) throws IOException, JspException
+    {
+        customControl.setParent(this);
+        customControl.setPersistentProperty(persistentProperty);
+        customControl.setJspContext(getJspContext());
+        customControl.doTag();
     }
 
     private void doWithStandardControl() throws JspException, IOException {
@@ -95,6 +101,9 @@ public class EditControlDispatcherTag extends SimpleTagSupport {
             case FILE:
                 worker = fileEditControl;
                 break;
+            case CUSTOM:
+                doCustomControl(CustomPersistentPropertyTypeLoader.of(persistentProperty).editor());
+                return;
             default:
                 worker = simpleEditControl;
                 break;

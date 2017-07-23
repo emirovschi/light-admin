@@ -20,7 +20,7 @@ function DomainEntity(data) {
     this.primary_key = this.manageable_entity['primary_key'];
     this.primary_key_value = this.manageable_entity['primary_key_value'];
     this.domain_link = this.managed_type ? this.manageable_entity['domain_link']['href'] : null;
-    this.links = this.manageable_entity['_links'];
+    this.links = data['_links'];
     this.original_properties = data;
     this.dynamic_properties = this.manageable_entity['dynamic_properties'];
 

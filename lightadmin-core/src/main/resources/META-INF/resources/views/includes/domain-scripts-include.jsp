@@ -3,6 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="light" uri="http://www.lightadmin.org/tags" %>
 <%@ taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <tiles:importAttribute name="domainTypeAdministrationConfiguration"/>
 
@@ -16,6 +17,8 @@
 
             BASE_URL: '${baseUrl}',
             REST_BASE_URL: '${restBaseUrl}',
+
+            CUSTOM_EDITORS: {},
 
             getDomainEntityCollectionUrl: function(resourceName) {
                 return this.BASE_URL + 'domain/' + resourceName;
@@ -69,3 +72,7 @@
 <script type="text/javascript" src="<light:url value="/scripts/controllers/lightadmin-quickview-controller.js"/>"></script>
 <script type="text/javascript" src="<light:url value="/scripts/controllers/lightadmin-showview-controller.js"/>"></script>
 <script type="text/javascript" src="<light:url value="/scripts/controllers/lightadmin-uploader-controller.js"/>"></script>
+
+<c:forEach var="fieldType" items="${light:getCustomTypes()}">
+<script type="text/javascript" src="<light:url value="${fieldType.script()}"/>"></script>
+</c:forEach>

@@ -22,6 +22,8 @@ import com.google.common.collect.Maps;
 import org.lightadmin.core.config.domain.field.CustomFieldMetadata;
 import org.lightadmin.core.config.domain.field.PersistentFieldMetadata;
 import org.lightadmin.core.config.domain.field.TransientFieldMetadata;
+import org.lightadmin.core.persistence.metamodel.CustomPersistentPropertyType;
+import org.lightadmin.core.persistence.metamodel.CustomPersistentPropertyTypeLoader;
 import org.lightadmin.core.persistence.metamodel.PersistentPropertyType;
 import org.springframework.data.mapping.Association;
 import org.springframework.data.mapping.PersistentProperty;
@@ -29,11 +31,12 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 
 import java.util.Map;
+import java.util.TreeSet;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import static com.google.common.collect.Maps.newLinkedHashMap;
-import java.util.TreeSet;
+import static java.util.Optional.ofNullable;
 import static org.lightadmin.core.persistence.metamodel.PersistentPropertyType.STRING;
 import static org.lightadmin.core.persistence.metamodel.PersistentPropertyType.UNKNOWN;
 
@@ -141,7 +144,7 @@ public class JsonConfigurationMetadata extends Resource<Map<String, JsonConfigur
     }
 
     public JsonConfigurationMetadata addDynamicProperty(TransientFieldMetadata transientField, String unitType) {
-        Property property = new Property(transientField.getUuid(), transientField.getName(), UNKNOWN, false, false);
+        Property property = new Property(transientField.getUuid(), transientField.getName(), UNKNOWN, false, false, null);
 
         addDynamicProperty(transientField.getUuid(), property, unitType);
 
@@ -149,7 +152,7 @@ public class JsonConfigurationMetadata extends Resource<Map<String, JsonConfigur
     }
 
     public JsonConfigurationMetadata addDynamicProperty(CustomFieldMetadata customField, String unitType) {
-        Property property = new Property(customField.getUuid(), customField.getName(), STRING, false, false);
+        Property property = new Property(customField.getUuid(), customField.getName(), STRING, false, false, null);
 
         addDynamicProperty(customField.getUuid(), property, unitType);
 
@@ -173,20 +176,27 @@ public class JsonConfigurationMetadata extends Resource<Map<String, JsonConfigur
 
     private JsonConfigurationMetadata.Property newAssociationProperty(PersistentProperty persistentProperty, String title, Link restTemplateLink) {
         PersistentPropertyType type = PersistentPropertyType.forPersistentProperty(persistentProperty);
-        return new JsonConfigurationMetadata.AssociationProperty(persistentProperty.getName(), title, type, true, false, restTemplateLink);
+        return new JsonConfigurationMetadata.AssociationProperty(persistentProperty.getName(), title, type, true, false, getCustomType(persistentProperty), restTemplateLink);
     }
 
     private JsonConfigurationMetadata.Property newProperty(PersistentProperty persistentProperty, String title) {
         PersistentPropertyType type = PersistentPropertyType.forPersistentProperty(persistentProperty);
-        return new JsonConfigurationMetadata.Property(persistentProperty.getName(), title, type, true, persistentProperty.isIdProperty());
+        return new JsonConfigurationMetadata.Property(persistentProperty.getName(), title, type, true, persistentProperty.isIdProperty(), getCustomType(persistentProperty));
+    }
+
+    private String getCustomType(final PersistentProperty persistentProperty)
+    {
+        return ofNullable(CustomPersistentPropertyTypeLoader.of(persistentProperty))
+                .map(CustomPersistentPropertyType::name)
+                .orElse(null);
     }
 
     static class AssociationProperty extends JsonConfigurationMetadata.Property {
 
         private Link restLink;
 
-        public AssociationProperty(String name, String title, PersistentPropertyType propertyType, boolean persistable, boolean primaryKey, Link restLink) {
-            super(name, title, propertyType, persistable, primaryKey);
+        public AssociationProperty(String name, String title, PersistentPropertyType propertyType, boolean persistable, boolean primaryKey, String customType, Link restLink) {
+            super(name, title, propertyType, persistable, primaryKey, customType);
             this.restLink = restLink;
         }
 
@@ -204,13 +214,15 @@ public class JsonConfigurationMetadata extends Resource<Map<String, JsonConfigur
         private String type;
         private boolean persistable;
         private boolean primaryKey;
+        private String customType;
 
-        public Property(String name, String title, PersistentPropertyType propertyType, boolean persistable, boolean primaryKey) {
+        public Property(String name, String title, PersistentPropertyType propertyType, boolean persistable, boolean primaryKey, final String customType) {
             this.name = name;
             this.title = title;
             this.type = propertyType.name();
             this.persistable = persistable;
             this.primaryKey = primaryKey;
+            this.customType = customType;
         }
 
         public String getName() {
@@ -231,6 +243,11 @@ public class JsonConfigurationMetadata extends Resource<Map<String, JsonConfigur
 
         public boolean isPrimaryKey() {
             return primaryKey;
+        }
+
+        public String getCustomType()
+        {
+            return customType;
         }
     }
 }

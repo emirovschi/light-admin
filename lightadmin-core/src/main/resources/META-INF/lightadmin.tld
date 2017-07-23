@@ -202,4 +202,10 @@
         <function-signature>java.lang.Object getAnnotationValue(java.lang.annotation.Annotation, java.lang.String)</function-signature>
     </function>
 
+    <function>
+        <name>getCustomTypes</name>
+        <function-class>org.lightadmin.core.persistence.metamodel.CustomPersistentPropertyTypeLoader</function-class>
+        <function-signature>org.lightadmin.core.persistence.metamodel.CustomPersistentPropertyType getAll()</function-signature>
+    </function>
+
 </taglib>
