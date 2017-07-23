@@ -18,6 +18,8 @@
             BASE_URL: '${baseUrl}',
             REST_BASE_URL: '${restBaseUrl}',
 
+            CUSTOM_EDITORS: {},
+
             getDomainEntityCollectionUrl: function(resourceName) {
                 return this.BASE_URL + 'domain/' + resourceName;
             },
