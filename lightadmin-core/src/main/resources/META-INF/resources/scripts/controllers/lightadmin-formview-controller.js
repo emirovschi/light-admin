@@ -127,7 +127,9 @@ function SaveOrUpdateDomainEntityAction(resourceName, domForm, usePlaceholders) 
                 data: jsonData,
                 dataType: 'json',
                 success: function (data) {
-                    saveCustomProperties(jsonForm[primaryKey]).then(function(){
+                    var primaryKeyValue = method == 'POST' ? data[primaryKey] : jsonForm[primaryKey];
+
+                    saveCustomProperties(primaryKeyValue).then(function(){
                         successCallback(new DomainEntity(data));
                     });
                 },
