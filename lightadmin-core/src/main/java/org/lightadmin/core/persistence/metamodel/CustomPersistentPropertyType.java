@@ -10,4 +10,6 @@ public interface CustomPersistentPropertyType
     String script();
 
     JspFragmentFieldControl editor();
+
+    String name();
 }

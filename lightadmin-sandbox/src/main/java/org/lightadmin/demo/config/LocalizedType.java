@@ -25,4 +25,10 @@ public class LocalizedType implements CustomPersistentPropertyType
     {
         return Editors.textArea();
     }
+
+    @Override
+    public String name()
+    {
+        return "LOCALIZED";
+    }
 }
