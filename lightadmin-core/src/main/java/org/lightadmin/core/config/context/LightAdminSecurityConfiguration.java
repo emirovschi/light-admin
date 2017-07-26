@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -63,7 +64,11 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.Filter;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Properties;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
@@ -87,6 +92,9 @@ public class LightAdminSecurityConfiguration {
 
     @Autowired
     private LightAdminConfiguration lightAdminConfiguration;
+
+    @Autowired
+    private Environment environment;
 
     @Bean
     @Autowired
@@ -128,6 +136,8 @@ public class LightAdminSecurityConfiguration {
         successHandler.setRequestCache(requestCache);
         authenticationFilter.setAuthenticationSuccessHandler(successHandler);
         authenticationFilter.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler(applicationUrl("/login?login_error=1")));
+        authenticationFilter.setUsernameParameter("j_username");
+        authenticationFilter.setPasswordParameter("j_password");
         return authenticationFilter;
     }
 
@@ -188,8 +198,15 @@ public class LightAdminSecurityConfiguration {
     @Bean
     @Primary
     public UserDetailsService userDetailsService() throws IOException {
-        Properties usersPproperties = PropertiesLoaderUtils.loadProperties(usersResource);
-        return new InMemoryUserDetailsManager(usersPproperties);
+        Properties rawProperties = PropertiesLoaderUtils.loadProperties(usersResource);
+        Properties usersProperties = new Properties();
+        rawProperties.forEach((key, value) -> usersProperties.put(resolvePlaceholders(key), resolvePlaceholders(value)));
+        return new InMemoryUserDetailsManager(usersProperties);
+    }
+
+    private String resolvePlaceholders(final Object value)
+    {
+        return environment.resolvePlaceholders(value.toString());
     }
 
     @Bean
