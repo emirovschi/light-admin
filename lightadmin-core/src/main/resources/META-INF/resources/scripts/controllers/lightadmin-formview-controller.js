@@ -96,18 +96,16 @@ function SaveOrUpdateDomainEntityAction(resourceName, domForm, usePlaceholders) 
     function saveCustomProperties(entityId)
     {
         var fields = ConfigurationMetadataService.getDynamicPropertiesAsArray(resourceName, 'formView');
-        var promise = Promise.resolve(undefined);
+        var promises = [];
 
         for (var fieldIdx in fields) {
             var property = fields[fieldIdx];
             if (property['type'] == 'CUSTOM') {
-                promise = promise.then(function(){
-                    return ApplicationConfig.CUSTOM_EDITORS[property['customType']].save(resourceName, entityId, domForm, property);
-                });
+                promises.push(ApplicationConfig.CUSTOM_EDITORS[property['customType']].save(resourceName, entityId, domForm, property));
             }
         }
 
-        return promise;
+        return Promise.all(promises);
     }
 
     return {
