@@ -31,7 +31,7 @@ function FormViewController(resourceName) {
         updateDomainEntity: function (domForm, successCallback) {
             var saveOrUpdateAction = new SaveOrUpdateDomainEntityAction(resourceName, domForm, false);
 
-            return saveOrUpdateAction.perform('PUT', successCallback);
+            return saveOrUpdateAction.perform('PATCH', successCallback);
         },
         removeDomainEntity: function (entityId, successCallback) {
             return new RemoveDomainEntityAction(resourceName).perform(entityId, successCallback);

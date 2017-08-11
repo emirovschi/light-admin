@@ -72,25 +72,31 @@
                 {
                     "bSortable": ${field.sortable},
                     "aTargets": [ ${status.index + 1 } ],
-                    <c:choose>
-                    <c:when test="${(not field.dynamic) and (light:persistentPropertyTypeOf(field.persistentProperty).toString() == 'ASSOC' or light:persistentPropertyTypeOf(field.persistentProperty).toString() == 'ASSOC_MULT')}">
-                    "mData": function(source) {
-                        var domainEntity = new DomainEntity(source);
-                        var propertyMetadata = ConfigurationMetadataService.getProperty(ApplicationConfig.RESOURCE_NAME, '${propertyName}', 'listView');
-                        return domainEntity.getPropertyValue(propertyMetadata, 'listView');
-                    },
-                    </c:when>
-                    <c:when test="${light:persistentPropertyTypeOf(field.persistentProperty).toString() == 'CUSTOM'}">
-                    "mData": function(source) {
-                        var domainEntity = new DomainEntity(source);
-                        var propertyMetadata = ConfigurationMetadataService.getProperty(ApplicationConfig.RESOURCE_NAME, '${propertyName}', 'listView');
-                        return ApplicationConfig.CUSTOM_EDITORS[propertyMetadata['customType']].getValue(domainEntity, propertyMetadata, 'listView');
-                    },
-                    </c:when>
-                    <c:otherwise>
-                    "mData": '${field.dynamic or light:persistentPropertyTypeOf(field.persistentProperty) eq FILE? '_embedded.manageable_entity.dynamic_properties.listView.' : ''}${propertyName}',
-                    </c:otherwise>
-                    </c:choose>
+                    <c:set var = "exception" value = "${null}"/>
+                    <c:catch var="exception">
+                        <c:choose>
+                        <c:when test="${(not field.dynamic) and (light:persistentPropertyTypeOf(field.persistentProperty).toString() == 'ASSOC' or light:persistentPropertyTypeOf(field.persistentProperty).toString() == 'ASSOC_MULT')}">
+                        "mData": function(source) {
+                            var domainEntity = new DomainEntity(source);
+                            var propertyMetadata = ConfigurationMetadataService.getProperty(ApplicationConfig.RESOURCE_NAME, '${propertyName}', 'listView');
+                            return domainEntity.getPropertyValue(propertyMetadata, 'listView');
+                        },
+                        </c:when>
+                        <c:when test="${light:persistentPropertyTypeOf(field.persistentProperty).toString() == 'CUSTOM'}">
+                        "mData": function(source) {
+                            var domainEntity = new DomainEntity(source);
+                            var propertyMetadata = ConfigurationMetadataService.getProperty(ApplicationConfig.RESOURCE_NAME, '${propertyName}', 'listView');
+                            return ApplicationConfig.CUSTOM_EDITORS[propertyMetadata['customType']].getValue(domainEntity, propertyMetadata, 'listView');
+                        },
+                        </c:when>
+                        <c:otherwise>
+                        "mData": '${field.dynamic or light:persistentPropertyTypeOf(field.persistentProperty) eq FILE? '_embedded.manageable_entity.dynamic_properties.listView.' : ''}${propertyName}',
+                        </c:otherwise>
+                        </c:choose>
+                    </c:catch>
+                    <c:if test="${exception != null}">
+                    "mData": '_embedded.manageable_entity.dynamic_properties.listView.${propertyName}',
+                    </c:if>
                     "mRender": function (innerData) {
                         return mRenderFieldValue(innerData, '${propertyName}');
                     },
